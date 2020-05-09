@@ -23,16 +23,16 @@ import Foreign.Marshal.Alloc hiding (free)
 
 {#fun open as ^ {`Options', `String', allocaNullPtr- `CString' throwIfPeekNull*-} -> `DB'#}
 
-{#fun options_create as ^ {} -> `Options'#}
-{#fun options_set_create_if_missing as ^ {`Options', `Bool'} -> `()'#}
+{#fun unsafe options_create as ^ {} -> `Options'#}
+{#fun unsafe options_set_create_if_missing as ^ {`Options', `Bool'} -> `()'#}
 
-{#fun readoptions_create as ^ {} -> `ReadOptions'#}
-{#fun writeoptions_create as ^ {} -> `WriteOptions'#}
+{#fun unsafe readoptions_create as ^ {} -> `ReadOptions'#}
+{#fun unsafe writeoptions_create as ^ {} -> `WriteOptions'#}
 
 {#fun get as ^ {`DB', `ReadOptions', asCStringLen `CStringLen'&, alloca- `CSize' peek*, allocaNullPtr- `CString' throwIfPeekNull*-} -> `CString'#}
 {#fun put as ^ {`DB', `WriteOptions', asCStringLen `CStringLen'&, asCStringLen `CStringLen'&, allocaNullPtr- `CString' throwIfPeekNull*-} -> `()'#}
 
-{#fun free as ^ {`Ptr ()'} -> `()'#}
+{#fun unsafe free as ^ {`Ptr ()'} -> `()'#}
 
 data DBError = DBError String deriving Show
 

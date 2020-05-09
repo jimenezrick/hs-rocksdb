@@ -15,8 +15,10 @@ main = do
       liftIO $ traceIO "XXX 2"
       -- GET
       ropts <- RDB.readOptionsCreate
-      v <- RDB.get db ropts (BS.pack "foo")
-      liftIO $ BS.putStrLn v
+      wopts <- RDB.writeOptionsCreate
+      v <- RDB.get db ropts (BS.pack "xxx")
+      liftIO $ print (v, BS.null v)
+      RDB.put db wopts (BS.pack "xxx") (BS.pack "")
       --
       release k1
       --
