@@ -24,6 +24,7 @@ library
   exposed-modules:     Database.RocksDB.C
                      , Database.RocksDB.Resource
   build-depends:       base ==4.*
+                     , bytestring
                      , resourcet
 
 executable rocksdb
@@ -32,5 +33,6 @@ executable rocksdb
 
   main-is:             Main.hs
   build-depends:       base
+                     , bytestring
                      , resourcet
                      , rocksdb
