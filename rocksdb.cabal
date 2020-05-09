@@ -1,0 +1,36 @@
+cabal-version:       3.0
+
+name:                rocksdb
+version:             0.1.0.0
+author:              Ricardo Catalinas Jiménez
+maintainer:          r@untroubled.be
+build-type:          Simple
+
+library
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+
+  build-tool-depends:  c2hs:c2hs
+  include-dirs:        cbits
+  c-sources:           cbits/rocksdb_helpers.c
+  includes:            rocksdb/c.h rocksdb_helpers.h
+  extra-libraries:     rocksdb
+  -- XXX
+  extra-lib-dirs:      /home/ricardo/ROCKSDB/build/
+  include-dirs:        /home/ricardo/ROCKSDB/include
+  -- XXX
+
+  hs-source-dirs:      src
+  exposed-modules:     Database.RocksDB.C
+                     , Database.RocksDB.Resource
+  build-depends:       base ==4.*
+                     , resourcet
+
+executable rocksdb
+  default-language:    Haskell2010
+  ghc-options:         -Wall -threaded
+
+  main-is:             Main.hs
+  build-depends:       base
+                     , resourcet
+                     , rocksdb
