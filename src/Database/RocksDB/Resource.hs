@@ -13,6 +13,7 @@ module Database.RocksDB.Resource
     writeOptionsCreate,
     writeOptionsCreate',
     get,
+    getPinned,
     put,
   )
 where
@@ -21,10 +22,11 @@ import Control.Monad.IO.Class
 import Control.Monad.Trans.Resource (MonadResource, ReleaseKey)
 import qualified Control.Monad.Trans.Resource as R
 import Data.ByteString (ByteString)
-import Data.ByteString.Unsafe (unsafePackMallocCStringLen, unsafeUseAsCStringLen)
-import Database.RocksDB.C (Compression, DB (..), Options (..), ReadOptions (..), WriteOptions (..))
+import Data.ByteString.Unsafe (unsafePackCStringFinalizer, unsafePackMallocCStringLen, unsafeUseAsCStringLen)
+import Database.RocksDB.C (Compression, DB (..), Options (..), PinnableSlice (..), ReadOptions (..), WriteOptions (..))
 import qualified Database.RocksDB.C as C
 import Foreign.ForeignPtr (finalizeForeignPtr)
+import Foreign.Ptr (castPtr, nullPtr)
 
 open :: MonadResource m => Options -> String -> m DB
 open opts name = snd <$> open' opts name
@@ -59,8 +61,20 @@ writeOptionsCreate' = do
 get :: MonadResource m => DB -> ReadOptions -> ByteString -> m ByteString
 get db opts key = do
   liftIO $ unsafeUseAsCStringLen key $ \ckey -> do
-    (cval, csize) <- C.get db opts ckey
-    unsafePackMallocCStringLen (cval, fromIntegral csize)
+    C.toCStringLen <$> C.get db opts ckey >>= unsafePackMallocCStringLen
+
+getPinned :: MonadResource m => DB -> ReadOptions -> ByteString -> m (Maybe ByteString)
+getPinned db opts key = do
+  liftIO $ unsafeUseAsCStringLen key $ \ckey -> do
+    slice@(PinnableSlice ptr) <- C.getPinned db opts ckey
+    if ptr == nullPtr
+      then return Nothing
+      else Just <$> pinnableSliceValue slice
+
+pinnableSliceValue :: PinnableSlice -> IO ByteString
+pinnableSliceValue slice = do
+  (cstr, clen) <- C.toCStringLen <$> C.pinnablesliceValue slice
+  unsafePackCStringFinalizer (castPtr cstr) clen (C.pinnablesliceDestroy slice)
 
 put :: MonadResource m => DB -> WriteOptions -> ByteString -> ByteString -> m ()
 put db opts key val = do

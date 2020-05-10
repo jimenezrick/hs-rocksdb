@@ -16,10 +16,16 @@ import Foreign.Marshal.Alloc hiding (free)
 
 {#enum no_compression as Compression {underscoreToCase} deriving (Eq, Show)#}
 
+-- XXX rocksdb_t prefix, remove
 {#pointer *rocksdb_t as DB foreign finalizer rocksdb_close_ifnotnull as ^ newtype#}
 {#pointer *rocksdb_options_t as Options foreign finalizer rocksdb_options_destroy as ^ newtype#}
 {#pointer *rocksdb_readoptions_t as ReadOptions foreign finalizer rocksdb_readoptions_destroy as ^ newtype#}
 {#pointer *rocksdb_writeoptions_t as WriteOptions foreign finalizer rocksdb_writeoptions_destroy as ^ newtype#}
+
+{#pointer *rocksdb_pinnableslice_t as PinnableSlice newtype#}
+
+{#fun unsafe pinnableslice_value as ^ {`PinnableSlice', alloca- `CSize' peek*} -> `CString'#}
+{#fun unsafe pinnableslice_destroy as ^ {`PinnableSlice'} -> `()'#}
 
 {#fun open as ^ {`Options', `String', allocaNullPtr- `CString' throwIfPeekNull*-} -> `DB'#}
 
@@ -29,8 +35,9 @@ import Foreign.Marshal.Alloc hiding (free)
 {#fun unsafe readoptions_create as ^ {} -> `ReadOptions'#}
 {#fun unsafe writeoptions_create as ^ {} -> `WriteOptions'#}
 
-{#fun get as ^ {`DB', `ReadOptions', asCStringLen `CStringLen'&, alloca- `CSize' peek*, allocaNullPtr- `CString' throwIfPeekNull*-} -> `CString'#}
-{#fun put as ^ {`DB', `WriteOptions', asCStringLen `CStringLen'&, asCStringLen `CStringLen'&, allocaNullPtr- `CString' throwIfPeekNull*-} -> `()'#}
+{#fun get as ^ {`DB', `ReadOptions', fromCStringLen `CStringLen'&, alloca- `CSize' peek*, allocaNullPtr- `CString' throwIfPeekNull*-} -> `CString'#}
+{#fun get_pinned as ^ {`DB', `ReadOptions', fromCStringLen `CStringLen'&, allocaNullPtr- `CString' throwIfPeekNull*-} -> `PinnableSlice'#}
+{#fun put as ^ {`DB', `WriteOptions', fromCStringLen `CStringLen'&, fromCStringLen `CStringLen'&, allocaNullPtr- `CString' throwIfPeekNull*-} -> `()'#}
 
 {#fun unsafe free as ^ {`Ptr ()'} -> `()'#}
 
@@ -51,5 +58,8 @@ throwIfPeekNull pStr = do
 allocaNullPtr :: Storable a => (Ptr (Ptr a) -> IO b) -> IO b
 allocaNullPtr f = alloca (\ptr -> poke ptr nullPtr >> f ptr)
 
-asCStringLen :: CStringLen -> (CString, CSize)
-asCStringLen (cstr, len) = (cstr, fromIntegral len)
+fromCStringLen :: CStringLen -> (CString, CSize)
+fromCStringLen (cstr, len) = (cstr, fromIntegral len)
+
+toCStringLen :: (CString, CSize) -> CStringLen
+toCStringLen (cstr, csize) = (cstr, fromIntegral csize)

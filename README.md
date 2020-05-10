@@ -8,10 +8,6 @@
 - https://github.com/vmchale/libarchive
 - https://github.com/deech/fltkhs
 
+# Look into RPC libraries:
 
-https://hackage.haskell.org/package/acquire
-https://hackage.haskell.org/package/resourcet
-https://hackage.haskell.org/package/resourcet
-
-
-https://github.com/msgpack-rpc/msgpack-rpc/blob/master/spec.md
+- https://github.com/msgpack-rpc/msgpack-rpc/blob/master/spec.md
