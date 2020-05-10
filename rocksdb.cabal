@@ -15,10 +15,6 @@ library
   c-sources:           cbits/helpers.c
   includes:            rocksdb/c.h helpers.h
   extra-libraries:     rocksdb
-  -- XXX
-  extra-lib-dirs:      /home/ricardo/ROCKSDB/build/
-  include-dirs:        /home/ricardo/ROCKSDB/include
-  -- XXX
 
   hs-source-dirs:      src
   exposed-modules:     Database.RocksDB.C
