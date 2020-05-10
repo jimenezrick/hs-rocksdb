@@ -12,8 +12,8 @@ library
 
   build-tool-depends:  c2hs:c2hs
   include-dirs:        cbits
-  c-sources:           cbits/rocksdb_helpers.c
-  includes:            rocksdb/c.h rocksdb_helpers.h
+  c-sources:           cbits/helpers.c
+  includes:            rocksdb/c.h helpers.h
   extra-libraries:     rocksdb
   -- XXX
   extra-lib-dirs:      /home/ricardo/ROCKSDB/build/

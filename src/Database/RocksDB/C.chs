@@ -8,7 +8,7 @@ import Foreign.C.Types
 import Foreign.Marshal.Alloc hiding (free)
 
 #include "rocksdb/c.h"
-#include "rocksdb_helpers.h"
+#include "helpers.h"
 
 {#context prefix = "rocksdb"#}
 
@@ -16,13 +16,12 @@ import Foreign.Marshal.Alloc hiding (free)
 
 {#enum no_compression as Compression {underscoreToCase} deriving (Eq, Show)#}
 
--- XXX rocksdb_t prefix, remove
-{#pointer *rocksdb_t as DB foreign finalizer rocksdb_close_ifnotnull as ^ newtype#}
-{#pointer *rocksdb_options_t as Options foreign finalizer rocksdb_options_destroy as ^ newtype#}
-{#pointer *rocksdb_readoptions_t as ReadOptions foreign finalizer rocksdb_readoptions_destroy as ^ newtype#}
-{#pointer *rocksdb_writeoptions_t as WriteOptions foreign finalizer rocksdb_writeoptions_destroy as ^ newtype#}
+{#pointer *rocksdb_t as DB foreign finalizer close_ifnotnull as ^ newtype#}
+{#pointer *options_t as Options foreign finalizer options_destroy as ^ newtype#}
+{#pointer *readoptions_t as ReadOptions foreign finalizer readoptions_destroy as ^ newtype#}
+{#pointer *writeoptions_t as WriteOptions foreign finalizer writeoptions_destroy as ^ newtype#}
 
-{#pointer *rocksdb_pinnableslice_t as PinnableSlice newtype#}
+{#pointer *pinnableslice_t as PinnableSlice newtype#}
 
 {#fun unsafe pinnableslice_value as ^ {`PinnableSlice', alloca- `CSize' peek*} -> `CString'#}
 {#fun unsafe pinnableslice_destroy as ^ {`PinnableSlice'} -> `()'#}
