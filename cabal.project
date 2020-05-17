@@ -1,2 +1,7 @@
-packages: .
 write-ghc-environment-files: always
+
+packages: .
+
+source-repository-package
+  type:     git
+  location: git://github.com/jimenezrick/hs-msgpack-rpc-conduit.git

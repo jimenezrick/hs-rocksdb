@@ -31,4 +31,6 @@ executable rocksdb
   build-depends:       base
                      , bytestring
                      , resourcet
+                     , exceptions
+                     , msgpack-rpc-conduit
                      , rocksdb

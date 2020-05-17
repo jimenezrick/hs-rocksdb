@@ -7,7 +7,3 @@
 
 - https://github.com/vmchale/libarchive
 - https://github.com/deech/fltkhs
-
-# Look into RPC libraries:
-
-- https://github.com/msgpack-rpc/msgpack-rpc/blob/master/spec.md
