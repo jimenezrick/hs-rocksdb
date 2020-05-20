@@ -27,12 +27,14 @@ import Foreign.Marshal.Alloc hiding (free)
 {#fun unsafe pinnableslice_destroy as ^ {`PinnableSlice'} -> `()'#}
 
 {#fun open as ^ {`Options', `String', allocaNullPtr- `CString' throwIfPeekNull*-} -> `DB'#}
+{#fun list_column_families as ^ {`Options', `String', alloca- `CSize' peek*, allocaNullPtr- `CString' throwIfPeekNull*-} -> `Ptr CString' id#}
 
 {#fun unsafe options_create as ^ {} -> `Options'#}
 {#fun unsafe options_set_create_if_missing as ^ {`Options', `Bool'} -> `()'#}
 
 {#fun unsafe readoptions_create as ^ {} -> `ReadOptions'#}
 {#fun unsafe writeoptions_create as ^ {} -> `WriteOptions'#}
+{#fun unsafe writeoptions_set_sync as ^ {`WriteOptions', `Bool'} -> `()'#}
 
 {#fun get as ^ {`DB', `ReadOptions', fromCStringLen `CStringLen'&, alloca- `CSize' peek*, allocaNullPtr- `CString' throwIfPeekNull*-} -> `CString'#}
 {#fun get_pinned as ^ {`DB', `ReadOptions', fromCStringLen `CStringLen'&, allocaNullPtr- `CString' throwIfPeekNull*-} -> `PinnableSlice'#}

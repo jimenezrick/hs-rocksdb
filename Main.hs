@@ -34,10 +34,11 @@ runClient host port = do
   Client.runClient (BS.pack host) port $ do
     RPC.rpc set
 
-main' :: IO ()
-main' = do
+main :: IO ()
+main = do
   runResourceT $ do
     (k1, opts) <- DB.optionsCreate'
+    DB.listColumnFamilies opts "mydb" >>= liftIO . print
     runResourceT $ do
       DB.optionsSetCreateIfMissing opts True
       db <- DB.open opts "mydb"
@@ -45,15 +46,16 @@ main' = do
       ropts <- DB.readOptionsCreate
       wopts <- DB.writeOptionsCreate
       -- NOT EXISTENT value
-      v <- DB.get db ropts (BS.pack "yyy")
+      v <- DB.getUnpinned db ropts (BS.pack "yyy")
       liftIO $ print (v, BS.null v)
-      v' <- DB.getPinned db ropts (BS.pack "yyy")
+      v' <- DB.get db ropts (BS.pack "yyy")
       liftIO $ print v'
       -- NULL value
+      DB.writeOptionsSetSync wopts True
       DB.put db wopts (BS.pack "null") (BS.pack "")
-      v2 <- DB.get db ropts (BS.pack "null")
+      v2 <- DB.getUnpinned db ropts (BS.pack "null")
       liftIO $ print (v2, BS.null v2)
-      v2' <- DB.getPinned db ropts (BS.pack "null")
+      v2' <- DB.get db ropts (BS.pack "null")
       liftIO $ print v2'
       --
       release k1
@@ -61,8 +63,8 @@ main' = do
       return ()
     return ()
 
-main :: IO ()
-main = do
+main' :: IO ()
+main' = do
   args <- getArgs
   if null args
     then do
