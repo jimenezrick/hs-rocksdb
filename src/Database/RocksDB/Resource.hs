@@ -29,9 +29,10 @@ import Data.ByteString (ByteString)
 import Data.ByteString.Unsafe (unsafePackCStringFinalizer, unsafePackMallocCStringLen, unsafeUseAsCStringLen)
 import Database.RocksDB.C (Compression, DB (..), Options (..), PinnableSlice (..), ReadOptions (..), WriteOptions (..))
 import qualified Database.RocksDB.C as C
-import Foreign.C.String (peekCString)
+import Foreign.C.String (CString, peekCString)
+import Foreign.C.Types (CSize)
 import Foreign.ForeignPtr (finalizeForeignPtr)
-import Foreign.Ptr (castPtr, nullPtr)
+import Foreign.Ptr (Ptr, castPtr, nullPtr)
 import Foreign.Storable (peekElemOff)
 
 open :: MonadResource m => Options -> String -> m DB
@@ -97,8 +98,11 @@ put db opts key val =
 listColumnFamilies :: MonadResource m => Options -> String -> m [String]
 listColumnFamilies opts name = liftIO $ do
   (ptrCStr, len) <- C.listColumnFamilies opts name
-  let len' = fromIntegral len
-  cfList <- mapM (peekElemOff ptrCStr >=> peekCString) [0 .. len' -1]
-  mapM_ (peekElemOff ptrCStr >=> C.free . castPtr) [0 .. len' -1]
-  C.free $ castPtr ptrCStr
+  cfList <- mapM (peekElemOff ptrCStr >=> peekCString) [0 .. fromIntegral len -1]
+  freeCStringArray ptrCStr len
   return cfList
+
+freeCStringArray :: Ptr CString -> CSize -> IO ()
+freeCStringArray ptr len = do
+  mapM_ (peekElemOff ptr >=> C.free . castPtr) [0 .. fromIntegral len -1]
+  C.free $ castPtr ptr
